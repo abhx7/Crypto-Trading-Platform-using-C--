@@ -39,15 +39,30 @@ MerkelMain is a simple trading simulator designed to analyze market trends, plac
 - **`OrderBookEntry.cpp`**: Provides structure and utility methods for order entries.
 
 ---
+## Key Classes and Functions
+### MerkelMain
+init(): Starts the trading simulation.
+printMenu(): Displays the interactive menu.
+processUserOption(int userOption): Maps user input to the appropriate action.
+### OrderBook
+getKnownProducts(): Lists all products in the market data.
+getOrders(): Filters orders based on type, product, and timestamp.
+getHighPrice() & getLowPrice(): Retrieve price statistics for orders.
+### CSVReader
+readCSV(): Reads and parses a CSV file into OrderBookEntry objects.
 
-## Installation and Usage
+```yaml
+1: Print help
+2: Print exchange stats
+3: Place an ask
+4: Place a bid
+5: Print wallet
+6: Continue
+Type in 1-6: 2
+You chose: 2
+Product: BTC/USDT
+Asks seen: 10
+Max ask: 50000
+Min ask: 45000
+```
 
-### Prerequisites
-- C++ Compiler (e.g., GCC, Clang, or MSVC)
-- CMake (optional, for build automation)
-
-### Build Instructions
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/MerkelMain.git
-   cd MerkelMain
