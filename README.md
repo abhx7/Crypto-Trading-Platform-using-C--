@@ -91,7 +91,7 @@ This specialization revolves around designing a simplified cryptocurrency tradin
 
 ## How to Use This Repository
 
-### Structure
+### Structure   ??????????????
 This repository is organized into directories for each course:
 - `Course_1_Introduction`: Beginner-level concepts, menu systems, and initial trading platform code.
 - `Course_2_Classes_and_Data`: Class design, data encapsulation, and memory management.
@@ -117,12 +117,8 @@ By completing this specialization, you will:
 
 ---
 
-## About the University of London
-The **University of London** is one of the world's leading universities, renowned for its excellence in teaching and research. This specialization is part of their commitment to providing accessible, high-quality education in the rapidly evolving field of computer science.
 
----
-
-## Course Projects
+## Course Projects    ?????????????
 This repository includes:
 - Sample codes and notes from each course.
 - Projects and exercises demonstrating key concepts.
