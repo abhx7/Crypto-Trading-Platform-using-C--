@@ -89,16 +89,6 @@ This specialization revolves around designing a simplified cryptocurrency tradin
 
 ---
 
-### Course Structure (Yet to be done)
-This repository is organized into directories for each course:
-- `Course_1_Introduction`: Beginner-level concepts, menu systems, and initial trading platform code.
-- `Course_2_Classes_and_Data`: Class design, data encapsulation, and memory management.
-- `Course_3_Functions`: Advanced function implementations like templates and operator overloading.
-- `Course_4_Objects`: Inheritance, polymorphism, and modular programming examples.
-- `Course_5_Final_Project`: The complete cryptocurrency trading platform code.
-
----
-
 ## Learning Outcomes
 By completing this specialization, you will:
 1. Understand the core principles of C++ programming and object-oriented design.
@@ -120,6 +110,16 @@ By completing this specialization, you will:
 - **Specialization Page**: [Coursera: Object-Oriented Programming in C++](https://www.coursera.org/specializations/object-oriented-programming-cpp)
 - **C++ Reference**: [cppreference.com](https://en.cppreference.com/)
 - **University of London**: [Official Website](https://london.ac.uk/)
+
+---
+
+### Repository Structure (Yet to be done)
+This repository is organized into directories for each course:
+- `Course_1_Introduction`: Beginner-level concepts, menu systems, and initial trading platform code.
+- `Course_2_Classes_and_Data`: Class design, data encapsulation, and memory management.
+- `Course_3_Functions`: Advanced function implementations like templates and operator overloading.
+- `Course_4_Objects`: Inheritance, polymorphism, and modular programming examples.
+- `Course_5_Final_Project`: The complete cryptocurrency trading platform code.
 
 ---
 ## Installation and Usage
