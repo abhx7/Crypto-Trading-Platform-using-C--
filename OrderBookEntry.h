@@ -1,32 +1,39 @@
 #pragma once
 
-#include <iostream>
 #include <string>
-#include <vector>
 
-
-// Enum declaration moved outside main()
-enum class OrderBookType
-{
-    bid,
-    ask,
-    unknown
-};
-
+enum class OrderBookType{bid, ask, unknown, asksale, bidsale};
 
 class OrderBookEntry
 {
-public: /** Create a new OrderBookEntry with the price * set to the sent value */
-    OrderBookEntry(double _price,
-        double _amount,
-        const std::string& _timestamp,
-        const std::string& _product,
-        OrderBookType _orderType);
+    public:
 
-    double price;            // : 0.02187308
-    double amount;           // : 7.44564869
-    std::string timestamp;   // : 2020 / 03 / 17 17 : 01 : 24.884492
-    std::string product;     // : ETH / BTC
-    OrderBookType orderType; // : bid
-    static OrderBookType stringToOrderBookType(const std::string& s);
+        OrderBookEntry( double _price, 
+                        double _amount, 
+                        std::string _timestamp, 
+                        std::string _product, 
+                        OrderBookType _orderType,
+                        std::string username = "dataset");
+
+        static OrderBookType stringToOrderBookType(std::string s);
+
+        static bool compareByTimestamp(OrderBookEntry& e1, OrderBookEntry& e2)
+        {
+            return e1.timestamp < e2.timestamp;
+        }  
+        static bool compareByPriceAsc(OrderBookEntry& e1, OrderBookEntry& e2)
+        {
+            return e1.price < e2.price;
+        }
+         static bool compareByPriceDesc(OrderBookEntry& e1, OrderBookEntry& e2)
+        {
+            return e1.price > e2.price;
+        }
+
+        double price;
+        double amount;
+        std::string timestamp;
+        std::string product;
+        OrderBookType orderType;
+        std::string username;
 };

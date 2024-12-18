@@ -1,13 +1,22 @@
 #include "MerkelMain.h"
-#include "OrderBook.h"
 #include <iostream>
-#include <functional>
+#include <vector>
+#include "OrderBookEntry.h"
+#include "CSVReader.h"
+#include "Wallet.h"
+
+
+MerkelMain::MerkelMain()
+{
+
+}
 
 void MerkelMain::init()
 {
     int input;
     currentTime = orderBook.getEarliestTime();
-    while (true)
+    wallet.insertCurrency("BTC", 10);
+    while(true)
     {
         printMenu();
         input = getUserOption();
@@ -15,28 +24,159 @@ void MerkelMain::init()
     }
 }
 
+
 void MerkelMain::printMenu()
 {
-    std::cout << "1: Print help\n"
-              << "2: Print exchange stats\n"
-              << "3: Place an ask\n"
-              << "4: Place a bid\n"
-              << "5: Print wallet\n"
-              << "6: Continue\n";
+    // 1 print help
+    std::cout << "1: Print help " << std::endl;
+    // 2 print exchange stats
+    std::cout << "2: Print exchange stats" << std::endl;
+    // 3 make an offer
+    std::cout << "3: Make an ask " << std::endl;
+    // 4 make a bid 
+    std::cout << "4: Make a bid " << std::endl;
+    // 5 print wallet
+    std::cout << "5: Print wallet " << std::endl;
+    // 6 continue   
+    std::cout << "6: Continue " << std::endl;
+
+    std::cout << "============== " << std::endl;
+
+    std::cout << "Current time is: " << currentTime << std::endl;
 }
 
+void MerkelMain::printHelp()
+{
+    std::cout << "Help - your aim is to make money. Analyse the market and make bids and offers. " << std::endl;
+}
+
+void MerkelMain::printMarketStats()
+{
+    for (std::string const& p : orderBook.getKnownProducts())
+    {
+        std::cout << "Product: " << p << std::endl;
+        std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookType::ask, 
+                                                                p, currentTime);
+        std::cout << "Asks seen: " << entries.size() << std::endl;
+        std::cout << "Max ask: " << OrderBook::getHighPrice(entries) << std::endl;
+        std::cout << "Min ask: " << OrderBook::getLowPrice(entries) << std::endl;
+    }
+
+}
+
+void MerkelMain::enterAsk()
+{
+    std::cout << "Make an ask - enter the amount: product,price, amount, eg  ETH/BTC,200,0.5" << std::endl;
+    std::string input;
+    std::getline(std::cin, input);
+
+    std::vector<std::string> tokens = CSVReader::tokenise(input, ',');
+    if (tokens.size() != 3)
+    {
+        std::cout << "MerkelMain::enterAsk Bad input! " << input << std::endl;
+    }
+    else {
+        try {
+            OrderBookEntry obe = CSVReader::stringsToOBE(
+                tokens[1],
+                tokens[2], 
+                currentTime, 
+                tokens[0], 
+                OrderBookType::ask 
+            );
+            obe.username = "simuser";
+            if (wallet.canFulfillOrder(obe))
+            {
+                std::cout << "Wallet looks good." << std::endl;
+                orderBook.insertOrder(obe);
+            }
+            else{
+                std::cout << "Wallet has insufficient funds. " << std::endl;
+            }
+        }catch (const std::exception& e)
+        {
+            std::cout << " MerkelMain::enterAsk Bad input " << std::endl;
+        }   
+    }
+
+    std::cout << "You typed: " << input << std::endl;
+}
+
+void MerkelMain::enterBid()
+{
+    std::cout << "Make a bid - enter the amount" << std::endl;
+    std::string input;
+    std::getline(std::cin, input);
+
+    std::vector<std::string> tokens = CSVReader::tokenise(input, ',');
+    if (tokens.size() != 3)
+    {
+        std::cout << "MerkelMain::enterBid Bad input! " << input << std::endl;
+    }
+    else {
+        try {
+            OrderBookEntry obe = CSVReader::stringsToOBE(
+                tokens[1],
+                tokens[2], 
+                currentTime, 
+                tokens[0], 
+                OrderBookType::bid 
+            );
+            obe.username = "simuser";
+            if (wallet.canFulfillOrder(obe))
+            {
+                std::cout << "Wallet looks good." << std::endl;
+                orderBook.insertOrder(obe);
+            }
+            else{
+                std::cout << "Wallet has insufficient funds. " << std::endl;
+            }
+        }catch (const std::exception& e)
+        {
+            std::cout << " MerkelMain::enterBid Bad input " << std::endl;
+        }   
+    }
+
+    std::cout << "You typed: " << input << std::endl;
+}
+
+void MerkelMain::printWallet()
+{
+    std::cout << "Your wallet is empty. " << std::endl;
+}
+        
+void MerkelMain::gotoNextTimeframe()
+{
+    std::cout << "Going to next time frame. " << std::endl;
+    for (std::string& p : orderBook.getKnownProducts())
+    {
+        std::cout << "matching " << p << std::endl;
+        std::vector<OrderBookEntry> sales =  orderBook.matchAsksToBids(p, currentTime);
+        std::cout << "Sales: " << sales.size() << std::endl;
+        for (OrderBookEntry& sale : sales)
+        {
+            std::cout << "Sale price: " << sale.price << " amount " << sale.amount << std::endl; 
+            if (sale.username == "simuser")
+            {
+                // update the wallet
+                wallet.processSale(sale);
+            }
+        }
+    }
+    currentTime = orderBook.getNextTime(currentTime);
+}
+ 
 int MerkelMain::getUserOption()
 {
-    int userOption;
-    std::cout << "Type in 1-6: ";
-    std::cin >> userOption;
-
-    if (std::cin.fail() || userOption < 1 || userOption > 6)
+    int userOption = 0;
+    std::string line;
+    std::cout << "Type in 1-6" << std::endl;
+    std::getline(std::cin, line);
+    try{
+        userOption = std::stoi(line);
+    }catch(const std::exception& e)
     {
-        std::cin.clear();
-        std::cin.ignore(INT_MAX, '\n');
-        std::cout << "Invalid input. Choose a number between 1 and 6.\n";
-        return 0;
+        // 
     }
     std::cout << "You chose: " << userOption << std::endl;
     return userOption;
@@ -44,183 +184,32 @@ int MerkelMain::getUserOption()
 
 void MerkelMain::processUserOption(int userOption)
 {
-    static std::map<int, std::function<void()>> menu = {
-        {1, [this]() { printHelp(); }},
-        {2, [this]() { printMarketStats(); }},
-        {3, [this]() { enterOffer(); }},
-        {4, [this]() { enterBid(); }},
-        {5, [this]() { printWallet(); }},
-        {6, [this]() { gotoNextTimeframe(); }}};
-
-    if (menu.find(userOption) != menu.end())
+    if (userOption == 0) // bad input
     {
-        menu[userOption]();
+        std::cout << "Invalid choice. Choose 1-6" << std::endl;
     }
-    else
+    if (userOption == 1) 
     {
-        std::cout << "Error. Choose a valid option between 1 and 6.\n";
+        printHelp();
     }
-}
-
-void MerkelMain::printHelp()
-{
-    std::cout << "Help: Analyze the market and make bids/offers to earn money.\n";
-}
-
-void MerkelMain::printMarketStats()
-{
-    for (const auto& product : orderBook.getKnownProducts())
+    if (userOption == 2) 
     {
-        std::cout << "Product: " << product << "\n";
-        auto entries = orderBook.getOrders(OrderBookType::ask, product, currentTime);
-        std::cout << "Asks seen: " << entries.size() << "\n"
-                  << "Max ask: " << OrderBook::getHighPrice(entries) << "\n"
-                  << "Min ask: " << OrderBook::getLowPrice(entries) << "\n";
+        printMarketStats();
     }
+    if (userOption == 3) 
+    {
+        enterAsk();
+    }
+    if (userOption == 4) 
+    {
+        enterBid();
+    }
+    if (userOption == 5) 
+    {
+        printWallet();
+    }
+    if (userOption == 6) 
+    {
+        gotoNextTimeframe();
+    }       
 }
-
-void MerkelMain::enterOffer()
-{
-    std::cout << "Enter ask amount:\n";
-}
-
-void MerkelMain::enterBid()
-{
-    std::cout << "Enter bid amount:\n";
-}
-
-void MerkelMain::printWallet()
-{
-    std::cout << "Wallet: Rs. 1000\n";
-}
-
-void MerkelMain::gotoNextTimeframe()
-{
-    std::cout << "Advancing to the next timeframe.\n";
-    currentTime = orderBook.getNextTime(currentTime);
-}
-
-// #include "MerkelMain.h" 
-// #include <iostream> 
-// #include <vector>
-// #include <map>
-
-// /** your main function should call this */
-
-// void MerkelMain::init()
-// {
-//     //loadOrderBook(); 
-//     int input;
-//     currentTime = orderBook.getEarliestTime();
-//     while (true)
-//     {
-//         printMenu();
-//         input = getUserOption();
-//         processUserOption(input);
-//     }
-// }
-
-// /** load up some dummy data for now */
-// // void MerkelMain::loadOrderBook()
-// // {
-// //     orders.push_back(OrderBookEntry{1000, 0.02, "2020/03/17 17:01:24.884492", "BTC/USDT", OrderBookType::bid});
-// //     orders.push_back(OrderBookEntry{2000, 0.02, "2020/03/17 17:01:24.884492", "BTC/USDT", OrderBookType::bid});
-// // }
-
-// // Function to convert OrderBookType to a string
-// std::string orderBookTypeToString(OrderBookType type)
-// {
-//     switch (type)
-//     {
-//     case OrderBookType::bid:
-//         return "Bid";
-//     case OrderBookType::ask:
-//         return "Ask";
-//     default:
-//         return "Unknown";
-//     }
-// }
-
-// /** prints all available options from the menu */
-// void MerkelMain::printMenu()
-// {
-//     std::cout << "1: Print help" << std::endl;
-//     std::cout << "2: Print exchange stats" << std::endl;
-//     std::cout << "3: Place an ask" << std::endl;
-//     std::cout << "4: Place a bid" << std::endl;
-//     std::cout << "5: Print wallet" << std::endl;
-//     std::cout << "6: Continue" << std::endl;
-// }
-
-// int MerkelMain::getUserOption()
-// {
-//     int userOption;
-//     std::cout << "Type in 1-6: ";
-//     std::cin >> userOption;
-//     std::cout << "You chose: " << userOption << std::endl;
-//     return userOption;
-// }
-
-// void MerkelMain::printHelp()
-// {
-//     std::cout << "Help - your aim is to make money." << std::endl;
-//     std::cout << "Analyse the market and make bids and offers." << std::endl;
-// }
-
-// void MerkelMain::printMarketStats()
-// {
-//     //std::cout << "Exchange stats" << std::endl;
-//     for (std::string const& p : orderBook.getKnownProducts())
-//     {
-//         std::cout << "Product : " << p << std::endl;
-//         std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookType::ask, p, currentTime);
-//         std::cout << "Asks seen : " << entries.size() << std::endl;
-//         std::cout << "Max ask: " << OrderBook::getHighPrice(entries) << std::endl;
-//         std::cout << "Min ask: " << OrderBook::getLowPrice(entries) << std::endl;
-//     }
-// }
-
-// void MerkelMain::enterOffer()
-// {
-//     std::cout << "Enter ask amount: " << std::endl;
-// }
-
-// void MerkelMain::enterBid()
-// {
-//     std::cout << "Enter bid amount: " << std::endl;
-// }
-
-// void MerkelMain::printWallet()
-// {
-//     std::cout << "Amount in wallet: Rs. 1000" << std::endl;
-// }
-
-// void MerkelMain::gotoNextTimeframe()
-// {
-//     std::cout << "Going to next time frame. " << std::endl;
-//     currentTime = orderBook.getNextTime(currentTime);
-// }
-
-// #include <functional> // For std::bind
-
-// void MerkelMain::processUserOption(int userOption)
-// {
-//     // Map from integers to lambdas that call the member functions
-//     std::map<int, std::function<void()>> menu = {
-//         {1, [this]() { printHelp(); }},
-//         {2, [this]() { printMarketStats(); }},
-//         {3, [this]() { enterOffer(); }},
-//         {4, [this]() { enterBid(); }},
-//         {5, [this]() { printWallet(); }},
-//         {6, [this]() { gotoNextTimeframe(); }} };
-
-//     // Check if the userOption is valid and call the corresponding function
-//     if (menu.find(userOption) != menu.end())
-//     {
-//         menu[userOption]();
-//     }
-//     else
-//     {
-//         std::cout << "Error. Choose an option between 1 and 6." << std::endl;
-//     }
-// }

@@ -1,37 +1,29 @@
-#pragma once 
-#include <vector> 
-#include "OrderBookEntry.h" 
+#pragma once
+
+#include <vector>
+#include "OrderBookEntry.h"
 #include "OrderBook.h"
-#include "CSVReader.h"
-#include <map>
+#include "Wallet.h"
 
 class MerkelMain
 {
-public:
-    MerkelMain() = default;
+    public:
+        MerkelMain();
+        /** Call this to start the sim */
+        void init();
+    private: 
+        void printMenu();
+        void printHelp();
+        void printMarketStats();
+        void enterAsk();
+        void enterBid();
+        void printWallet();
+        void gotoNextTimeframe();
+        int getUserOption();
+        void processUserOption(int userOption);
 
-    /** Call this to start the sim */
-    void init();
+        std::string currentTime;
 
-
-private:
-    //void loadOrderBook(); 
-    void printMenu();
-    void printHelp();
-    void printMarketStats();
-    void enterOffer();
-    void enterBid();
-    void printWallet();
-    void gotoNextTimeframe();
-    int getUserOption();
-    void processUserOption(int userOption);
-
-    std::string currentTime;
-
-    // this is the new way 
-    // we will represent the orders 
-    OrderBook orderBook{ "20200317.csv" };
-    // we don't want this any more as 
-    // OrderBook will store this data itself 
-    //std::vector < OrderBookEntry> orders; 
+        OrderBook orderBook{"20200317.csv"};
+        Wallet wallet{};
 };
