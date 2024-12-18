@@ -89,9 +89,7 @@ This specialization revolves around designing a simplified cryptocurrency tradin
 
 ---
 
-## How to Use This Repository
-
-### Structure   ??????????????
+### Course Structure (Yet to be done)
 This repository is organized into directories for each course:
 - `Course_1_Introduction`: Beginner-level concepts, menu systems, and initial trading platform code.
 - `Course_2_Classes_and_Data`: Class design, data encapsulation, and memory management.
@@ -115,13 +113,6 @@ By completing this specialization, you will:
 - **Versatility**: It supports procedural, object-oriented, and generic programming paradigms.
 - **Industry Relevance**: Many legacy and modern systems are built on C++.
 
----
-
-
-## Course Projects    ?????????????
-This repository includes:
-- Sample codes and notes from each course.
-- Projects and exercises demonstrating key concepts.
 
 ---
 
