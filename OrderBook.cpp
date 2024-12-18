@@ -50,10 +50,14 @@ std::vector<OrderBookEntry> OrderBook::getOrders(OrderBookType type,
 
 double OrderBook::getHighPrice(std::vector<OrderBookEntry>& orders)
 {
+    if (orders.empty())
+    {
+        throw std::runtime_error("Cannot get high price from an empty order list.");
+    }
     double max = orders[0].price;
     for (OrderBookEntry& e : orders)
     {
-        if (e.price > max)max = e.price;
+        if (e.price > max) max = e.price;
     }
     return max;
 }

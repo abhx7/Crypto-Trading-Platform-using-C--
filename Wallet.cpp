@@ -75,25 +75,33 @@ bool Wallet::removeCurrency(std::string type, double amount)
 
 bool Wallet::canFulfillOrder(OrderBookEntry order)
 {
-    std::vector<std::string> currs = CSVReader::tokenise(order.product,'/');
-    // ask
-    if (order.orderType== OrderBookType::ask)
+    std::vector<std::string> currs = CSVReader::tokenise(order.product, '/');
+    if (currs.size() != 2)
     {
-        double amount = order.amount;
-        std::string currency = currs[0];
-        std::cout << "Wallet::canFulfillOrder " << currency << " : " << amount << std::endl;
-        return containsCurrency(currency, amount);
+        std::cerr << "Invalid product format: " << order.product << "\n";
+        return false;
     }
-    // bid
-    if (order.orderType == OrderBookType::bid)
+
+    if (order.orderType == OrderBookType::ask)
     {
-        double amount = order.amount * order.price;
-        std::string currency = currs[1];
-        std::cout << "Wallet::canFulfillOrder " << currency << " : " << amount << std::endl;
-        return containsCurrency(currency, amount);
+        if (!containsCurrency(currs[0], order.amount))
+        {
+            std::cerr << "Insufficient " << currs[0] << " in wallet for ask of " << order.amount << "\n";
+            return false;
+        }
     }
-    return false;
+    else if (order.orderType == OrderBookType::bid)
+    {
+        double requiredFunds = order.amount * order.price;
+        if (!containsCurrency(currs[1], requiredFunds))
+        {
+            std::cerr << "Insufficient " << currs[1] << " in wallet for bid of " << requiredFunds << "\n";
+            return false;
+        }
+    }
+    return true;
 }
+
 
 void Wallet::processSale(OrderBookEntry& sale)
 {

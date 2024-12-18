@@ -102,6 +102,43 @@ void MerkelMain::enterAsk()
     std::cout << "You typed: " << input << std::endl;
 }
 
+// void MerkelMain::enterAsk()
+// {
+//     std::cout << "Make an ask - enter the amount: product, price, amount (e.g., ETH/BTC,200,0.5)\n";
+//     std::string input;
+//     std::getline(std::cin, input);
+
+//     std::vector<std::string> tokens = CSVReader::tokenise(input, ',');
+//     if (tokens.size() != 3)
+//     {
+//         std::cout << "Invalid input format. Please use: product,price,amount\n";
+//         return;
+//     }
+
+//     try
+//     {
+//         OrderBookEntry ask = CSVReader::stringsToOBE(
+//             tokens[1], tokens[2], currentTime, tokens[0], OrderBookType::ask);
+//         ask.username = "simuser";
+
+//         if (wallet.canFulfillOrder(ask))
+//         {
+//             wallet.removeCurrency(tokens[0], std::stod(tokens[2]));
+//             orderBook.insertOrder(ask);
+//             std::cout << "Ask successfully placed.\n";
+//         }
+//         else
+//         {
+//             std::cout << "Wallet has insufficient funds for this ask.\n";
+//         }
+//     }
+//     catch (const std::exception& e)
+//     {
+//         std::cout << "Error processing ask: " << e.what() << "\n";
+//     }
+// }
+
+
 void MerkelMain::enterBid()
 {
     std::cout << "Make a bid - enter the amount" << std::endl;
